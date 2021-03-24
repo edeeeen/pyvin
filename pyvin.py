@@ -79,8 +79,8 @@ class Ui_Dialog(object):
     def start(self):
         API_KEY = "94e0533e6b7f8d733455fbed379b7543"
         API_SECRET = "db4c15d2158771d31b8540a1e9aa2905"
-        username = "Liwwy"
-        password_hash = pylast.md5("lf0P%u#*xYif")
+        username = "temp"
+        password_hash = pylast.md5("temp")
         network = pylast.LastFMNetwork(
             api_key=API_KEY,
             api_secret=API_SECRET,
