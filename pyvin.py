@@ -10,7 +10,6 @@ class Ui_Dialog(object):
     def __init__(self):
         with open('dict.txt') as f: 
             data = f.read() 
-        # reconstructing the data as a dictionary 
         self.albumDict = ast.literal_eval(data)
     
     def setupUi(self, Dialog):
@@ -20,7 +19,6 @@ class Ui_Dialog(object):
         self.comboBox.setGeometry(QtCore.QRect(90, 10, 151, 23))
         self.comboBox.setObjectName("comboBox")
 
-        # reconstructing the data as a dictionary 
         for key, value in self.albumDict.items():
             self.comboBox.addItem(key) 
         #label 2 (Currently srobbling)
@@ -100,11 +98,14 @@ class Ui_Dialog(object):
         print(artist, album)
         print(os.path.exists(".covers/"+self.comboBox.currentText()+".jpg"))
         if not os.path.exists(".covers/"+self.comboBox.currentText()+".jpg"):
-            cover = network.get_album(artist, album)
-            cover = cover.get_cover_image()
-            print(cover)
-            abc = '.covers/'+self.comboBox.currentText()+".jpg"
-            urllib.request.urlretrieve(cover, abc)
+            try:
+                cover = network.get_album(artist, album)
+                cover = cover.get_cover_image()
+                print(cover)
+                abc = '.covers/'+self.comboBox.currentText()+".jpg"
+                urllib.request.urlretrieve(cover, abc)
+            except:
+                print("Error fetching cover") 
         self.label.setPixmap(QtGui.QPixmap(".covers/"+self.comboBox.currentText()+".jpg"))
         print(songs, length, artist, album)
         self.label_6.setText("On " + album)
@@ -113,22 +114,23 @@ class Ui_Dialog(object):
         for song in songs:
             x += 1
             z += 1
-            print(song, artist, x)
-            self.setSong(song, artist, x, len(songs))
-            network.scrobble(artist=artist, album=album, title=song, timestamp=int(time.time()))
             time2 = length[z]
             seconds = time2.split(":")
             seconds = int(seconds[0])*60 + int(seconds[1])
             a = 0.01 * float(seconds)
             a = a * 1000
+            print(song, artist, x)
+            self.setSong(song, artist, x, len(songs))
+            
+            network.update_now_playing(artist=artist, album=album, title=song, duration=a)
+
             for percent in range(101):
                 print(a, percent)
                 self.progressBar.setValue(percent)
                 QtTest.QTest.qWait(int(a))
-                #time.sleep(a)
+            network.scrobble(artist=artist, album=album, title=song, timestamp=int(time.time()))
         self.label_3.setText("No Longer Scrobbling") 
         self.label_2.setText("")
-        self.label_4.setText("")
         self.label_5.setText("")
         self.label_6.setText("")
         self.label_7.setText("")
@@ -156,3 +158,5 @@ if __name__ == "__main__":
     ui.setupUi(Dialog)
     Dialog.show()
     sys.exit(app.exec_())
+
+
